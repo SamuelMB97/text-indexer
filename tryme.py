@@ -1,18 +1,25 @@
 import sys
 import os
-import PyYAML as pyy
-import Markdown as md
+import yaml
+import markdown as md
 
 
 
 
 
 
+
+
+
+
+def get_info_from_md_file(f_md):
+    print(yaml.dir())
+    return
 
 
 
 def main(argv):
-    pass
+    get_info_from_md_file(argv[1])
 
 
 

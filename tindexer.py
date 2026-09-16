@@ -1,7 +1,7 @@
 import sys
 import os
-import PyYAML as pyy
-import Markdown as md
+import yaml
+import markdown as md #for writing an md file as an html file
 
 
 def main(argv):
