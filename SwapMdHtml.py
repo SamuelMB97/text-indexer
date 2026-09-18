@@ -173,8 +173,8 @@ class SwapMdHtml():
     def to_html_str(self):
         new_str = f"""
             <div style="font-weight: bold; font-size: 120%; padding-bottom: 5px;">
-                " FFFFFF "
                 <a href="{self.html_path}">{self.html_name}</a>
+            </div>
             <br>
             Date: {self.date}
             <br>
@@ -228,8 +228,9 @@ class SwapMdHtml():
         with open(entry, "r", encoding='utf-8') as f:
             text = self.trim_blocks(f)
 
+        """ # TODO this part must be un-commented to make the html files
         with open(out_file_path, "w", encoding='utf-8') as f:
-            f.write(md.markdown(text))
+            f.write(md.markdown(text))#"""
 
         return (out_file_name, out_file_path)
     

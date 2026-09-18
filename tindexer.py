@@ -13,7 +13,9 @@ def scan_dir_recursive(dir, deapth=0):
         return -1
     
     dTab = "\t"*deapth
-    folder_data = [dir]
+    dir_name = os.path.basename(dir)
+    
+    folder_data = [dir_name]
     files_data = []
     for entry in os.scandir(dir):
         if entry.is_dir():
@@ -23,7 +25,7 @@ def scan_dir_recursive(dir, deapth=0):
         elif entry.name.endswith(".md"):
             print(f"{dTab}MARKDOWN: {entry.name}")
             file_swapper = swap.SwapMdHtml(entry, dir)
-            print(file_swapper.to_html_str())
+            #print(file_swapper.to_html_str())
 
 
             files_data.append(file_swapper)
@@ -39,16 +41,55 @@ def create_html(entry, dir):
     pass
 
 
+def body_html_recursive(dataset, deapth=0):
+    inside = ""
+    dTab = "\t" * deapth
+    
+    for e in dataset:
+        tp = type(e)
+        print(f"{dTab}{tp}")
+        if tp == str:
+            inside = inside + header(e)
+        if tp == swap.SwapMdHtml:
+            inside = inside + e.to_html_str()
+        elif tp == list:
+            inner = body_html_recursive(e, deapth=deapth+1)
+            if inner:
+                inside = inside + inner
+    return inside
+
+def header(folder_name):
+    return f"<h2>{folder_name}</h2>"
+
 def create_index(dir_dataset, root_folder):
-    pass
+    return f"""
+    <html>
+        <head>
+            <meta charset="utf-8">
+        </head>
+        <body>
+            {body_html_recursive(dir_dataset)}
+        </body>
+    </html>
+    """
+    
 
 
 def main(root_folder):
     all_the_data = scan_dir_recursive(root_folder)
+    print(all_the_data)
     """print("\n" * 3)
     for row in all_the_data:
         print(f"NEXT: {row}")"""
-    create_index(all_the_data, root_folder)
+
+    print(f"\n\nCREATING HTML:")
+    html = create_index(all_the_data, root_folder)
+    print(f"\n\n FINAL HTML:\n{html}")
+
+    index_path = os.path.join(root_folder, "index.html")
+
+    with open(index_path, "w", encoding="utf-8") as f:
+        f.write(html)
 
     """
     print("MADE IT THIS FAR... :)")
