@@ -1,9 +1,10 @@
 import yaml
+import markdown as md #for writing an md file as an html file
 from datetime import datetime
 import os
 
-
-class Presentable_md():
+# TODO set links as relative instead of absolute
+class SwapMdHtml():
     def __init__(self, md_entry:os.DirEntry):
         #print(f">>INITIALIZING Presentable_md with entry: {md_entry.name}")
         self.file_entry = md_entry
@@ -164,7 +165,7 @@ class Presentable_md():
             return "".join(yaml_block)
 
 
-    def to_html(self):
+    def to_html_str(self):
         new_str = f"""
             <div style="font-weight: bold; font-size: 120%; padding-bottom: 5px;">
                 " FFFFFF "
@@ -182,3 +183,8 @@ class Presentable_md():
             <br>
             """
         return new_str
+
+
+    def make_html_file(self):
+        pass
+    

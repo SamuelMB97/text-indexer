@@ -1,34 +1,7 @@
 import sys
 import os
-import yaml
-import markdown as md #for writing an md file as an html file
-import Presentable_md as pmd
+import SwapMdHtml as swap
 
-def get_yaml_block(f_md):
-    with open(f_md, "r", encoding="utf-8") as f:
-        yaml_block = []
-        block_found = False
-        for line in f.readlines():
-            if line == "": #end of document
-                return False
-            elif line[:2] == "$[":
-                block_found = True
-            elif line[-4:] == "]$\n":
-                block_found = False
-
-            elif block_found:
-                yaml_block.append(line)
-        return "".join(yaml_block)
-
-
-def get_md_data(f_md):# TODO delete outdated function
-    """Takes a file and returns relevant data as dictionary"""
-    block = get_yaml_block(f_md)
-    if block:
-        data = yaml.safe_load(block)
-    else:
-        data = load_data_from_file(f_md)
-    return data
 
 
 def scan_dir_recursive(dir, deapth=0):
@@ -47,13 +20,16 @@ def scan_dir_recursive(dir, deapth=0):
             print(f"{dTab}DIRECTORY: {entry}")
             folder_data.append(scan_dir_recursive(entry, deapth=deapth+1))
 
-        elif entry.name[-3:] == ".md":
+        elif entry.name.endswith(".md"):
             print(f"{dTab}MARKDOWN: {entry.name}")
-            file_data = pmd.Presentable_md(entry)
-            
-            #print(themd.to_html())
+            file_data = swap.SwapMdHtml(entry)
+            print(file_data.to_html_str())
+            assert 0
+
+            html_link = create_html(entry, dir)
 
             files_data.append(file_data)
+
         else:
             print(f"{dTab}NEITHER D/M: {entry.name}")
 
@@ -61,26 +37,24 @@ def scan_dir_recursive(dir, deapth=0):
     return folder_data
 
 
-def main(argv):
+def create_html(entry, dir):
+    pass
 
-    all_the_data = scan_dir_recursive(argv[1])
+
+def create_index(dir_dataset, root_folder):
+    pass
+
+
+def main(root_folder):
+    all_the_data = scan_dir_recursive(root_folder)
     """print("\n" * 3)
     for row in all_the_data:
         print(f"NEXT: {row}")"""
+    create_index(all_the_data, root_folder)
 
     """
     print("MADE IT THIS FAR... :)")
     assert 0#"""
-
-    """
-    data = get_file_data(argv[1])
-    print(f"DATA:\n{data}\nTHAT'S THE DATA")
-    """
-
-    """d=data
-    html = html_str_for_md(d['title'], d['date'], d['categories'], "999", d['key-words'], "NameOfFile.md", argv, )
-    print(f"HTML:\n{html}\nTHAT'S THE HTML")
-    """
 
 
 # headers above md files come from dir names they're in...
@@ -92,5 +66,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main(sys.argv[1])
     
