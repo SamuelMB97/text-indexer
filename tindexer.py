@@ -2,7 +2,8 @@ import sys
 import os
 import SwapMdHtml as swap
 
-
+# TODO pretty much everything is working except the links to
+# the new html files :P
 
 def scan_dir_recursive(dir, deapth=0):
     """takes a directory and recursively scans it, returning at each
@@ -26,14 +27,12 @@ def scan_dir_recursive(dir, deapth=0):
             print(f"{dTab}MARKDOWN: {entry.name}")
             file_swapper = swap.SwapMdHtml(entry, dir)
             #print(file_swapper.to_html_str())
-
-
             files_data.append(file_swapper)
 
         else:
             print(f"{dTab}NEITHER D/M: {entry.name}")
 
-    folder_data.append(files_data)
+    folder_data.insert(1, files_data)
     return folder_data
 
 

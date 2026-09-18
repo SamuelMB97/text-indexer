@@ -122,7 +122,7 @@ class SwapMdHtml():
             'for', 'from', 'if', 'in', 'into', 'like', 'near', 
             'nor', 'of', 'off', 'on', 'once', 'onto', 'or', 'over', 
             'past', 'so', 'than', 'that', 'the', 'to', 'upon', 
-            'when', 'with', 'yet']
+            'when', 'with', 'yet', 'what', 'can', 'have', 'has']
         keywords = []
 
         with open(file, "r", encoding="utf-8") as f:
