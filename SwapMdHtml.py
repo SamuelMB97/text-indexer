@@ -2,18 +2,14 @@ import yaml
 import markdown as md #for writing an md file as an html file
 from datetime import datetime
 import os
+from pathlib import Path
 
 # TODO set links as relative instead of absolute
 class SwapMdHtml():
-    def __init__(self, md_entry:os.DirEntry, parent_dir):
+    def __init__(self, md_entry:os.DirEntry, root_dir):
         #print(f">>INITIALIZING Presentable_md with entry: {md_entry.name}")
-        self.parent = parent_dir
+        self.root_dir = root_dir
         self.file_entry = md_entry
-        self.html = self.make_html_file(
-            self.file_entry, self.parent
-            )
-        self.html_name = self.html[0]
-        self.html_path = self.html[1]
         self.parse_data(self.get_md_data(md_entry))
 
     def parse_data(self, data:dict):#add some ifs...?
@@ -170,10 +166,13 @@ class SwapMdHtml():
             return "".join(yaml_block)
 
 
-    def to_html_str(self):
+    def to_html_str(self, root_folder):
+        self.html_path = self.make_html_file()
+        self.rel_html_path = self.html_path.relative_to(root_folder).as_posix()
+
         new_str = f"""
             <div style="font-weight: bold; font-size: 120%; padding-bottom: 5px;">
-                <a href="{self.html_path}">{self.html_name}</a>
+                <a href="{self.rel_html_path}">{self.html_path.name}</a>
             </div>
             <br>
             Date: {self.date}
@@ -185,6 +184,7 @@ class SwapMdHtml():
             Keywords: {self.keywords}
             <br>
             {self.file_name}
+            <br>
             <br>
             """
         return new_str
@@ -215,22 +215,31 @@ class SwapMdHtml():
         return "".join(lines)
         
 
-    def make_html_file(self, entry, folder):
-        """Takes an os.DirEntry as a .md file and it's parent folder and
+    def make_html_file(self):
+        """Takes an os.DirEntry as a .md file, and
         writes a .html file copy in the same folder"""
-        #print(folder)
-        #print(entry.name)
-        out_file_name = entry.name[:-2] + "html"
-        #print(out_file_name)
-        out_file_path = os.path.join(folder, out_file_name)
-        #print(f"path: {out_file_path}")
 
-        with open(entry, "r", encoding='utf-8') as f:
+        """print(f"entry name: {self.file_entry.name}")
+
+        entry_path = os.path.dirname(self.file_entry.path)
+        print(f"entry path: {entry_path}")
+
+        out_file_name = self.file_entry.name[:-2] + "html"
+        print(f"Out file name: {out_file_name}")
+        
+        out_file_path = os.path.join(entry_path, out_file_name)
+        print(f"path: {out_file_path}")"""
+
+        md_path = Path(self.file_entry.path)
+        html_path = md_path.with_suffix(".html")
+
+
+        with open(self.file_entry, "r", encoding='utf-8') as f:
             text = self.trim_blocks(f)
 
-        """ # TODO this part must be un-commented to make the html files
-        with open(out_file_path, "w", encoding='utf-8') as f:
+        #""" # TODO this part must be un-commented to make the html files
+        with open(html_path, "w", encoding='utf-8') as f:
             f.write(md.markdown(text))#"""
 
-        return (out_file_name, out_file_path)
+        return html_path
     

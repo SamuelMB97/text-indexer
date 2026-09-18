@@ -40,7 +40,7 @@ def create_html(entry, dir):
     pass
 
 
-def body_html_recursive(dataset, deapth=0):
+def body_html_recursive(dataset, root, deapth=0):
     inside = ""
     dTab = "\t" * deapth
     
@@ -50,9 +50,9 @@ def body_html_recursive(dataset, deapth=0):
         if tp == str:
             inside = inside + header(e)
         if tp == swap.SwapMdHtml:
-            inside = inside + e.to_html_str()
+            inside = inside + e.to_html_str(root)
         elif tp == list:
-            inner = body_html_recursive(e, deapth=deapth+1)
+            inner = body_html_recursive(e, root, deapth=deapth+1)
             if inner:
                 inside = inside + inner
     return inside
@@ -67,7 +67,7 @@ def create_index(dir_dataset, root_folder):
             <meta charset="utf-8">
         </head>
         <body>
-            {body_html_recursive(dir_dataset)}
+            {body_html_recursive(dir_dataset, root_folder)}
         </body>
     </html>
     """
