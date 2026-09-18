@@ -3,3 +3,5 @@ contentHtml/
 contentMd/
 index.pdf
 tryme.py
+**/__pycache__/
+*.py[cod]
