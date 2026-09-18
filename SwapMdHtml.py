@@ -4,16 +4,13 @@ from datetime import datetime
 import os
 from pathlib import Path
 
-# TODO set links as relative instead of absolute
 class SwapMdHtml():
     def __init__(self, md_entry:os.DirEntry, root_dir):
-        #print(f">>INITIALIZING Presentable_md with entry: {md_entry.name}")
         self.root_dir = root_dir
         self.file_entry = md_entry
         self.parse_data(self.get_md_data(md_entry))
 
     def parse_data(self, data:dict):#add some ifs...?
-        #print(f">>PARSING .md data from {type(data)}")
         self.title = data['title']
         self.date = data['date']
         self.categories = data['categories']
@@ -26,7 +23,6 @@ class SwapMdHtml():
 
     def get_md_data(self, file):
         """Takes a file and returns relevant data as dictionary"""
-        #print(f">>GETTING .md data from {file.name}")
         data = {
             'title': "", 
             'date': "", 
@@ -36,51 +32,38 @@ class SwapMdHtml():
             'file_name': "", 
             'file_path': ""}
         
-        #print(f"data set empty: {data}")
         block = self.get_yaml_block(file)
-        #print(f"YAML BLOCK:\n{block}\nTHAT'S THE BLOCK, type: {type(block)}, length: {len(block)}, truthy: {bool(block)}")
         if block:
             yaml_data = yaml.safe_load(block)
-            #print(f"yaml_data: {yaml_data}")
             data.update(yaml_data)
-        #print(f"data set after yaml: {data}")
 
 
         if not data['title']:
             data['title'] = self.find_title(file)
-            #print(f"Title in data: {data['title']}")
 
         if not data['date']:
             stat = os.stat(file).st_mtime
             data['date'] = datetime.fromtimestamp(stat).date()
-            #print(f"date in data: {data['date']}")
 
         if not data['categories']:
             data['categories'] = [self.get_categories(file)]
-            #print(f"categories in data: {data['categories']}")
 
         if not data['word_count']:
             data['word_count'] = self.get_word_count(file)
-            #print(f"word count in data: {data['word_count']}")
 
         if not data['key-words']:
             data['key-words'] = self.get_keywords(file)
-            #print(f"keywords in data: {data['key-words']}")
 
         if not data['file_name']:
             data['file_name'] = self.file_entry.name
-            #print(f"file_name from entry: {data['file_name']}")
 
-        if not data['file_path']: #TODO file path should go to the html file
+        if not data['file_path']:
             data['file_path'] = self.file_entry.path
-            #print(f"file_path from entry: {data['file_path']}")
         
-        #print(f"data set after scrape: {data}")
         return data
 
     
     def find_title(self, file):
-        #print(f"file type: {type(file)}, file name: {file.name}")
         title = ""
         with open(file, "r", encoding='utf-8') as f:
             while not title:
@@ -99,7 +82,6 @@ class SwapMdHtml():
     def get_categories(self, file):
         entrypath = os.path.dirname(file.path)
         parent_dir_name = os.path.basename(entrypath)
-        #print(f"parent_dir_name = {parent_dir_name}")
         return parent_dir_name
 
 
@@ -108,7 +90,6 @@ class SwapMdHtml():
             count = 0
             for line in f.readlines():
                 count += len(line.split())
-        #print(f"count: {count}")
         return count
 
 
@@ -129,24 +110,18 @@ class SwapMdHtml():
                     for word in line_words[1:]:
                         keywords.append(word.lower())
 
-        #print(f"\npre-cut keywords: {keywords}")
         for word in keywords:
-            #print(f"word: '{word}' ", end="")
             if word.lower() in NOT_KEY_WORDS:
-                #print(f"not allowed. ")
                 keywords.remove(word)
             elif len(str(word)) < 3:
-                #print(f"too short. ")
                 keywords.remove(word)
 
-        #print()
         keywords = list(dict.fromkeys(keywords)) #remove duplicates
 
         return keywords[:6]
 
 
     def get_yaml_block(self, file):
-        #print(f">>GETTING YAML BLOCK from {file}")
         with open(file, "r", encoding="utf-8") as f:
             yaml_block = []
             block_found = False
@@ -158,7 +133,6 @@ class SwapMdHtml():
 
                 if block_found:
                     yaml_block.append(line)
-                #elif "$[" in line.split():# accepts the first block it finds
                 elif "*$[ article*" in line.strip():# only accepts article blocks
                     block_found = True
                     
@@ -219,17 +193,6 @@ class SwapMdHtml():
         """Takes an os.DirEntry as a .md file, and
         writes a .html file copy in the same folder"""
 
-        """print(f"entry name: {self.file_entry.name}")
-
-        entry_path = os.path.dirname(self.file_entry.path)
-        print(f"entry path: {entry_path}")
-
-        out_file_name = self.file_entry.name[:-2] + "html"
-        print(f"Out file name: {out_file_name}")
-        
-        out_file_path = os.path.join(entry_path, out_file_name)
-        print(f"path: {out_file_path}")"""
-
         md_path = Path(self.file_entry.path)
         html_path = md_path.with_suffix(".html")
 
@@ -237,9 +200,8 @@ class SwapMdHtml():
         with open(self.file_entry, "r", encoding='utf-8') as f:
             text = self.trim_blocks(f)
 
-        #""" # TODO this part must be un-commented to make the html files
         with open(html_path, "w", encoding='utf-8') as f:
-            f.write(md.markdown(text))#"""
+            f.write(md.markdown(text))
 
         return html_path
     
