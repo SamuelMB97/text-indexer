@@ -1,4 +1,6 @@
 import yaml
+from datetime import datetime
+import os
 
 
 class Presentable_md():
@@ -25,14 +27,22 @@ class Presentable_md():
 
         if not data['title']:
             data['title'] = self.find_title(file)
+            print(data['title'])
+
         if not data['date']:
-            pass# TODO
+            stat = os.stat(file).st_mtime
+            data['date'] = datetime.fromtimestamp(stat).date()
+            print(data['date'])
+
         if not data['categories']:
-            pass# TODO
+            data['categories'] = [self.get_categories()]
+
         if not data['word_count']:
-            pass# TODO
+            data['word_count'] = self.get_word_count(file)
+
         if not data['keywords']:
-            pass# TODO
+            data['keywords'] = self.get_keywords(file)
+
         if not data['file_name']:
             pass# TODO
         if not data['file_path']:
@@ -49,7 +59,56 @@ class Presentable_md():
                 ["#", "##", "###", "####", "#####"]:
                     title = " ".join(line_words[1:]).strip()
         return title
-        
+
+
+    def get_categories(self, file):
+        entrypath = os.path.dirname(file.path)
+        parent_dir_name = os.path.basename(entrypath)
+        #print(f"parent_dir_name = {parent_dir_name}")
+        return parent_dir_name
+
+
+    def get_word_count(self, file):
+        with open(file, "r", encoding="utf-8") as f:
+            count = 0
+            for line in f.readlines():
+                count += len(line.split())
+        print(f"count: {count}")
+        return count
+
+
+    def get_keywords(self, file):
+        NOT_KEY_WORDS = [
+            'a', 'about', 'and', 'as', 'at', 'but', 'by', 'down', 
+            'for', 'from', 'if', 'in', 'into', 'like', 'near', 
+            'nor', 'of', 'off', 'on', 'once', 'onto', 'or', 'over', 
+            'past', 'so', 'than', 'that', 'the', 'to', 'upon', 
+            'when', 'with', 'yet']
+        keywords = []
+
+        with open(file, "r", encoding="utf-8") as f:
+            for line in f.readlines():
+                line_words = line.split()
+                if line_words and line_words[0] in \
+                ["#", "##", "###", "####", "#####"]:
+                    for word in line_words[1:]:
+                        keywords.append(word.lower())
+
+        #print(f"\npre-cut keywords: {keywords}")
+        for word in keywords:
+            #print(f"word: '{word}' ", end="")
+            if word.lower() in NOT_KEY_WORDS:
+                #print(f"not allowed. ")
+                keywords.remove(word)
+            elif len(str(word)) < 3:
+                #print(f"too short. ")
+                keywords.remove(word)
+
+        #print()
+        keywords = list(dict.fromkeys(keywords)) #remove duplicates
+
+        return keywords[:6]
+
 
     def get_yaml_block(self, file):
         with open(file, "r", encoding="utf-8") as f:

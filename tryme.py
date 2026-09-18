@@ -93,17 +93,17 @@ def get_keywords(file):
                 for word in line_words[1:]:
                     keywords.append(word.lower())
 
-    print(f"\npre-cut keywords: {keywords}")
+    #print(f"\npre-cut keywords: {keywords}")
     for word in keywords:
-        print(f"word: '{word}' ", end="")
+        #print(f"word: '{word}' ", end="")
         if word.lower() in NOT_KEY_WORDS:
-            print(f"not allowed. ")
+            #print(f"not allowed. ")
             keywords.remove(word)
         elif len(str(word)) < 3:
-            print(f"too short. ")
+            #print(f"too short. ")
             keywords.remove(word)
 
-    print()
+    #print()
     keywords = list(dict.fromkeys(keywords)) #remove duplicates
 
     return keywords[:6]
