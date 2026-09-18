@@ -4,58 +4,76 @@ import os
 
 
 class Presentable_md():
-    def __init__(self, md_file):
-        self.file_entry = md_file
-        self.parse_data(self.get_md_data(md_file))
+    def __init__(self, md_entry:os.DirEntry):
+        #print(f">>INITIALIZING Presentable_md with entry: {md_entry.name}")
+        self.file_entry = md_entry
+        self.parse_data(self.get_md_data(md_entry))
+
 
 
     def parse_data(self, data:dict):#add some ifs...?
+        #print(f">>PARSING .md data from {type(data)}")
         self.title = data['title']
         self.date = data['date']
         self.categories = data['categories']
         self.word_count = data['word_count']
-        self.keywords = data['keywords']
+        self.keywords = data['key-words']
         self.file_name = data['file_name']
         self.file_path = data['file_path']
 
 
     def get_md_data(self, file):
         """Takes a file and returns relevant data as dictionary"""
-        block = self.get_yaml_block(file)
+        #print(f">>GETTING .md data from {file.name}")
         data = {
             'title': "", 
             'date': "", 
             'categories': "", 
             'word_count': "", 
-            'keywords': "", 
+            'key-words': "", 
             'file_name': "", 
             'file_path': ""}
+        
+        #print(f"data set empty: {data}")
+        block = self.get_yaml_block(file)
+        #print(f"YAML BLOCK:\n{block}\nTHAT'S THE BLOCK")
         if block:
-            data = yaml.safe_load(block) | data
+            yaml_data = yaml.safe_load(block)
+            #print(f"yaml_data: {yaml_data}")
+            data.update(yaml_data)
+        #print(f"data set after yaml: {data}")
+
 
         if not data['title']:
             data['title'] = self.find_title(file)
-            print(data['title'])
+            #print(f"Title in data: {data['title']}")
 
         if not data['date']:
             stat = os.stat(file).st_mtime
             data['date'] = datetime.fromtimestamp(stat).date()
-            print(data['date'])
+            #print(f"date in data: {data['date']}")
 
         if not data['categories']:
-            data['categories'] = [self.get_categories()]
+            data['categories'] = [self.get_categories(file)]
+            #print(f"categories in data: {data['categories']}")
 
         if not data['word_count']:
             data['word_count'] = self.get_word_count(file)
+            #print(f"word count in data: {data['word_count']}")
 
-        if not data['keywords']:
-            data['keywords'] = self.get_keywords(file)
+        if not data['key-words']:
+            data['key-words'] = self.get_keywords(file)
+            #print(f"keywords in data: {data['key-words']}")
 
         if not data['file_name']:
-            self.file_name = self.file_entry.name
+            data['file_name'] = self.file_entry.name
+            #print(f"file_name from entry: {data['file_name']}")
 
         if not data['file_path']:
-            self.file_path = self.file_entry.path
+            data['file_path'] = self.file_entry.path
+            #print(f"file_path from entry: {data['file_path']}")
+        
+        #print(f"data set after scrape: {data}")
         return data
 
     
@@ -64,7 +82,10 @@ class Presentable_md():
         with open(file, "r", encoding='utf-8') as f:
             while not title:                
                 line_words = f.readline().split()
-                if line_words and line_words in \
+                if line_words == "":
+                    return False# There's no header
+                
+                elif line_words and line_words[0] in \
                 ["#", "##", "###", "####", "#####"]:
                     title = " ".join(line_words[1:]).strip()
         return title
@@ -82,7 +103,7 @@ class Presentable_md():
             count = 0
             for line in f.readlines():
                 count += len(line.split())
-        print(f"count: {count}")
+        #print(f"count: {count}")
         return count
 
 
@@ -120,19 +141,23 @@ class Presentable_md():
 
 
     def get_yaml_block(self, file):
+        #print(f">>GETTING YAML BLOCK from {file}")
         with open(file, "r", encoding="utf-8") as f:
             yaml_block = []
             block_found = False
             for line in f.readlines():
                 if line == "": #end of document
                     return False
-                elif line[:2] == "$[":
-                    block_found = True
-                elif line[-4:] == "]$\n":
+                elif "]$" in line.split():
                     block_found = False
 
-                elif block_found:
+                if block_found:
                     yaml_block.append(line)
+                #elif "$[" in line.split():# accepts the first block it finds
+                elif "*$[ article*" in line.strip():# only accepts article blocks
+                    block_found = True
+                    
+
             return "".join(yaml_block)
 
 

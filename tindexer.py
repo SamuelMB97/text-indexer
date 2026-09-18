@@ -2,7 +2,7 @@ import sys
 import os
 import yaml
 import markdown as md #for writing an md file as an html file
-
+import Presentable_md as pmd
 
 def get_yaml_block(f_md):
     with open(f_md, "r", encoding="utf-8") as f:
@@ -21,7 +21,7 @@ def get_yaml_block(f_md):
         return "".join(yaml_block)
 
 
-def get_md_data(f_md):
+def get_md_data(f_md):# TODO delete outdated function
     """Takes a file and returns relevant data as dictionary"""
     block = get_yaml_block(f_md)
     if block:
@@ -49,7 +49,11 @@ def scan_dir_recursive(dir, deapth=0):
 
         elif entry.name[-3:] == ".md":
             print(f"{dTab}MARKDOWN: {entry.name}")
-            files_data.append(get_md_data(entry))
+            themd = pmd.Presentable_md(entry)
+            
+            #print(themd.to_html())
+
+            files_data.append(pmd.Presentable_md(entry))
         else:
             print(f"{dTab}NEITHER D/M: {entry.name}")
 
@@ -60,6 +64,9 @@ def scan_dir_recursive(dir, deapth=0):
 def main(argv):
 
     all_the_data = scan_dir_recursive(argv[1])
+
+    """print("MADE IT THIS FAR... :)")
+    assert 0"""
     """
     data = get_file_data(argv[1])
     print(f"DATA:\n{data}\nTHAT'S THE DATA")
@@ -71,25 +78,9 @@ def main(argv):
     """
 
 
-# headers above md files come from dir names they're in... but I think each header is only there once
-def html_str_for_md(title, date, categories, word_count, keywords, file_name, file_path): #not sure FFFFFF is correct
-    new_str = f"""
-        <div style="font-weight: bold; font-size: 120%; padding-bottom: 5px;">
-            " FFFFFF "
-            <a href="{file_path}">{file_name}</a>
-        <br>
-        Date: {date}
-        <br>
-        Categories: {categories}
-        <br>
-        {word_count} words
-        <br>
-        Keywords: {keywords}
-        <br>
-        {file_name}
-        <br>
-        """
-    return new_str
+# headers above md files come from dir names they're in...
+# but I think each header is only there once
+
 
 
 
