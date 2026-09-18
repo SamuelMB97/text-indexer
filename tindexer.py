@@ -49,11 +49,11 @@ def scan_dir_recursive(dir, deapth=0):
 
         elif entry.name[-3:] == ".md":
             print(f"{dTab}MARKDOWN: {entry.name}")
-            themd = pmd.Presentable_md(entry)
+            file_data = pmd.Presentable_md(entry)
             
             #print(themd.to_html())
 
-            files_data.append(pmd.Presentable_md(entry))
+            files_data.append(file_data)
         else:
             print(f"{dTab}NEITHER D/M: {entry.name}")
 
@@ -64,9 +64,14 @@ def scan_dir_recursive(dir, deapth=0):
 def main(argv):
 
     all_the_data = scan_dir_recursive(argv[1])
+    """print("\n" * 3)
+    for row in all_the_data:
+        print(f"NEXT: {row}")"""
 
-    """print("MADE IT THIS FAR... :)")
-    assert 0"""
+    """
+    print("MADE IT THIS FAR... :)")
+    assert 0#"""
+
     """
     data = get_file_data(argv[1])
     print(f"DATA:\n{data}\nTHAT'S THE DATA")
@@ -88,3 +93,4 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv)
+    

@@ -36,7 +36,7 @@ class Presentable_md():
         
         #print(f"data set empty: {data}")
         block = self.get_yaml_block(file)
-        #print(f"YAML BLOCK:\n{block}\nTHAT'S THE BLOCK")
+        #print(f"YAML BLOCK:\n{block}\nTHAT'S THE BLOCK, type: {type(block)}, length: {len(block)}, truthy: {bool(block)}")
         if block:
             yaml_data = yaml.safe_load(block)
             #print(f"yaml_data: {yaml_data}")
@@ -78,14 +78,17 @@ class Presentable_md():
 
     
     def find_title(self, file):
+        #print(f"file type: {type(file)}, file name: {file.name}")
         title = ""
         with open(file, "r", encoding='utf-8') as f:
-            while not title:                
-                line_words = f.readline().split()
-                if line_words == "":
-                    return False# There's no header
+            while not title:
+                line = f.readline()
+                if line == "":
+                    return file.name# There's no header
                 
-                elif line_words and line_words[0] in \
+                line_words = line.split()
+                
+                if line_words and line_words[0] in \
                 ["#", "##", "###", "####", "#####"]:
                     title = " ".join(line_words[1:]).strip()
         return title
