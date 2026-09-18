@@ -5,12 +5,16 @@ import os
 
 # TODO set links as relative instead of absolute
 class SwapMdHtml():
-    def __init__(self, md_entry:os.DirEntry):
+    def __init__(self, md_entry:os.DirEntry, parent_dir):
         #print(f">>INITIALIZING Presentable_md with entry: {md_entry.name}")
+        self.parent = parent_dir
         self.file_entry = md_entry
+        self.html = self.make_html_file(
+            self.file_entry, self.parent
+            )
+        self.html_name = self.html[0]
+        self.html_path = self.html[1]
         self.parse_data(self.get_md_data(md_entry))
-
-
 
     def parse_data(self, data:dict):#add some ifs...?
         #print(f">>PARSING .md data from {type(data)}")
@@ -21,6 +25,7 @@ class SwapMdHtml():
         self.keywords = data['key-words']
         self.file_name = data['file_name']
         self.file_path = data['file_path']
+
 
 
     def get_md_data(self, file):
@@ -70,7 +75,7 @@ class SwapMdHtml():
             data['file_name'] = self.file_entry.name
             #print(f"file_name from entry: {data['file_name']}")
 
-        if not data['file_path']:
+        if not data['file_path']: #TODO file path should go to the html file
             data['file_path'] = self.file_entry.path
             #print(f"file_path from entry: {data['file_path']}")
         
@@ -169,7 +174,7 @@ class SwapMdHtml():
         new_str = f"""
             <div style="font-weight: bold; font-size: 120%; padding-bottom: 5px;">
                 " FFFFFF "
-                <a href="{self.file_path}">{self.file_name}</a>
+                <a href="{self.html_path}">{self.html_name}</a>
             <br>
             Date: {self.date}
             <br>
@@ -185,6 +190,46 @@ class SwapMdHtml():
         return new_str
 
 
-    def make_html_file(self):
-        pass
+    def trim_blocks(self, file):
+        """takes a .md file and returns the text contents without yaml
+        blocks"""
+        lines = file.readlines()
+
+
+        in_block = False
+        bad_line_idxs = []
+        for i in range(len(lines)):
+            if in_block:
+                if "]$" in lines[i].split():
+                    in_block = False
+                bad_line_idxs.append(i)
+            else:
+                if "$[" in lines[i].split():
+                    in_block = True
+                    bad_line_idxs.append(i)
+            
+        for i in reversed(bad_line_idxs):
+            lines.pop(i)
+
+
+        return "".join(lines)
+        
+
+    def make_html_file(self, entry, folder):
+        """Takes an os.DirEntry as a .md file and it's parent folder and
+        writes a .html file copy in the same folder"""
+        #print(folder)
+        #print(entry.name)
+        out_file_name = entry.name[:-2] + "html"
+        #print(out_file_name)
+        out_file_path = os.path.join(folder, out_file_name)
+        #print(f"path: {out_file_path}")
+
+        with open(entry, "r", encoding='utf-8') as f:
+            text = self.trim_blocks(f)
+
+        with open(out_file_path, "w", encoding='utf-8') as f:
+            f.write(md.markdown(text))
+
+        return (out_file_name, out_file_path)
     

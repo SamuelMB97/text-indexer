@@ -109,6 +109,47 @@ def get_keywords(file):
     return keywords[:6]
 
 
+def trim_blocks(file):
+    """takes a .md file and returns the text contents without yaml
+    blocks"""
+    lines = file.readlines()
+
+
+    in_block = False
+    bad_line_idxs = []
+    for i in range(len(lines)):
+        if in_block:
+            if "]$" in lines[i].split():
+                in_block = False
+            bad_line_idxs.append(i)
+        else:
+            if "$[" in lines[i].split():
+                in_block = True
+                bad_line_idxs.append(i)
+        
+    for i in reversed(bad_line_idxs):
+        lines.pop(i)
+
+
+    return "".join(lines)
+    
+
+def make_html_file(entry, folder):
+    """Takes an os.DirEntry as a .md file and it's parent folder and
+    writes a .html file copy in the same folder"""
+    #print(folder)
+    #print(entry.name)
+    out_file_name = entry.name[:-2] + "html"
+    #print(out_file_name)
+    out_file_path = os.path.join(folder, out_file_name)
+    #print(f"path: {out_file_path}")
+
+    with open(entry, "r", encoding='utf-8') as f:
+        text = trim_blocks(f)
+
+    with open(out_file_path, "w", encoding='utf-8') as f:
+        f.write(md.markdown(text))
+
 
 
 
@@ -117,8 +158,11 @@ def main(file):
 
     entries = os.scandir(file)
     for e in entries:
-        keywords = get_keywords(e)
-        print(f"KEYWORDS:>{keywords}<THAT'S THE KEYWORDS")
+        if e.name.endswith(".md"):
+            make_html_file(e, file)
+
+        """keywords = get_keywords(e)
+        print(f"KEYWORDS:>{keywords}<THAT'S THE KEYWORDS")"""
 
         """word_count = get_word_count(e)
         print(f"WORD COUNT:>{word_count}<THAT'S THE WORD COUNT")"""

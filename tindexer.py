@@ -22,13 +22,11 @@ def scan_dir_recursive(dir, deapth=0):
 
         elif entry.name.endswith(".md"):
             print(f"{dTab}MARKDOWN: {entry.name}")
-            file_data = swap.SwapMdHtml(entry)
-            print(file_data.to_html_str())
-            assert 0
+            file_swapper = swap.SwapMdHtml(entry, dir)
+            print(file_swapper.to_html_str())
 
-            html_link = create_html(entry, dir)
 
-            files_data.append(file_data)
+            files_data.append(file_swapper)
 
         else:
             print(f"{dTab}NEITHER D/M: {entry.name}")
