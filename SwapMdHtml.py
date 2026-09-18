@@ -5,12 +5,18 @@ import os
 from pathlib import Path
 
 class SwapMdHtml():
+    """Holds data on a .md file, creates a .html version of it, and
+    prepares data for an index. Takes an os.DirEntry and root folder"""
+
     def __init__(self, md_entry:os.DirEntry, root_dir):
         self.root_dir = root_dir
         self.file_entry = md_entry
         self.parse_data(self.get_md_data(md_entry))
 
-    def parse_data(self, data:dict):#add some ifs...?
+    def parse_data(self, data:dict):
+        """takes a data dict from self.get_md_data and sets class 
+        attributes."""
+
         self.title = data['title']
         self.date = data['date']
         self.categories = data['categories']
@@ -64,6 +70,8 @@ class SwapMdHtml():
 
     
     def find_title(self, file):
+        """Returns a title from a .md file"""
+
         title = ""
         with open(file, "r", encoding='utf-8') as f:
             while not title:
@@ -80,12 +88,14 @@ class SwapMdHtml():
 
 
     def get_categories(self, file):
+        """returns categories from headers in a .md file."""
         entrypath = os.path.dirname(file.path)
         parent_dir_name = os.path.basename(entrypath)
         return parent_dir_name
 
 
     def get_word_count(self, file):
+        """returns word count of a text file"""
         with open(file, "r", encoding="utf-8") as f:
             count = 0
             for line in f.readlines():
@@ -94,6 +104,7 @@ class SwapMdHtml():
 
 
     def get_keywords(self, file):
+        """returns keywords from headers in a .md file"""
         NOT_KEY_WORDS = [
             'a', 'about', 'and', 'as', 'at', 'but', 'by', 'down', 
             'for', 'from', 'if', 'in', 'into', 'like', 'near', 
@@ -122,6 +133,8 @@ class SwapMdHtml():
 
 
     def get_yaml_block(self, file):
+        """Returns an embeded yaml 'article' block from a .md file."""
+
         with open(file, "r", encoding="utf-8") as f:
             yaml_block = []
             block_found = False
@@ -141,6 +154,10 @@ class SwapMdHtml():
 
 
     def to_html_str(self, root_folder):
+        """takes a root folder and returns an html block string with 
+        the data from the class's file, including a hyperlink that
+        will work in the root folder."""
+        
         self.html_path = self.make_html_file()
         self.rel_html_path = self.html_path.relative_to(root_folder).as_posix()
 

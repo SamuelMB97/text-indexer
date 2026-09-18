@@ -32,6 +32,10 @@ def scan_dir_recursive(dir, deapth=0):
 
 
 def body_html_recursive(dataset, root):
+    """takes a dataset from scan_dir_recursive, and recursively
+    extracts data and builds the contents of the <body> section
+    of an html index"""
+
     inside = ""
     
     for e in dataset:
@@ -47,9 +51,13 @@ def body_html_recursive(dataset, root):
     return inside
 
 def header(folder_name):
+    """Takes a folder name and returns it as an html header"""
     return f"<h2>{folder_name}</h2>"
 
 def create_index(dir_dataset, root_folder):
+    """takes a dataset from scan_dir_recursive and the root folder, 
+    and builds the html for a directory index in the root."""
+
     return f"""
     <html>
         <head>
@@ -64,6 +72,9 @@ def create_index(dir_dataset, root_folder):
 
 
 def main(root_folder):
+    """takes a root folder as a path, creates .html versions of
+    internal .md files, and makes a .html index in the root."""
+
     all_the_data = scan_dir_recursive(root_folder)
 
     html = create_index(all_the_data, root_folder)
