@@ -5,6 +5,7 @@ import os
 
 class Presentable_md():
     def __init__(self, md_file):
+        self.file_entry = md_file
         self.parse_data(self.get_md_data(md_file))
 
 
@@ -21,9 +22,16 @@ class Presentable_md():
     def get_md_data(self, file):
         """Takes a file and returns relevant data as dictionary"""
         block = self.get_yaml_block(file)
-        data = dict()
+        data = {
+            'title': "", 
+            'date': "", 
+            'categories': "", 
+            'word_count': "", 
+            'keywords': "", 
+            'file_name': "", 
+            'file_path': ""}
         if block:
-            data = yaml.safe_load(block)
+            data = yaml.safe_load(block) | data
 
         if not data['title']:
             data['title'] = self.find_title(file)
@@ -44,9 +52,10 @@ class Presentable_md():
             data['keywords'] = self.get_keywords(file)
 
         if not data['file_name']:
-            pass# TODO
+            self.file_name = self.file_entry.name
+
         if not data['file_path']:
-            pass# TODO
+            self.file_path = self.file_entry.path
         return data
 
     
@@ -125,17 +134,6 @@ class Presentable_md():
                 elif block_found:
                     yaml_block.append(line)
             return "".join(yaml_block)
-
-    def load_data_from_file(self, file):
-        return -1
-        self.set_title(file)
-        self.title = data.title
-        self.date = data.date
-        self.categories = data.categories
-        self.word_count = data.word_count
-        self.keywords = data.keywords
-        self.file_name = data.file_name
-        self.file_path = data.file_path
 
 
     def to_html(self):
