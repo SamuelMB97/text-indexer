@@ -1,5 +1,5 @@
 import yaml
-import markdown as md #for writing an md file as an html file
+import markdown as md
 from datetime import datetime
 import os
 from pathlib import Path
@@ -157,7 +157,7 @@ class SwapMdHtml():
         """takes a root folder and returns an html block string with 
         the data from the class's file, including a hyperlink that
         will work in the root folder."""
-        
+
         self.html_path = self.make_html_file()
         self.rel_html_path = self.html_path.relative_to(root_folder).as_posix()
 
